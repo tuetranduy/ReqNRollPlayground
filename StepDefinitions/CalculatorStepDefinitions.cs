@@ -1,7 +1,10 @@
-using System;
+using Microsoft.Extensions.Configuration;
 using Reqnroll;
 using ReqnRollPlayground.Context;
+using ReqnRollPlayground.Drivers;
 using ReqnRollPlayground.Services;
+using System;
+using System.Threading;
 
 namespace ReqnRollPlayground.StepDefinitions;
 
@@ -10,41 +13,35 @@ public sealed class CalculatorStepDefinitions
 {
     private CalculatorContext _calculatorContext;
     private MailService _mailService;
-    
-    public CalculatorStepDefinitions(CalculatorContext calculatorContext, MailService mailService)
+    private IConfiguration _configuration;
+
+    public CalculatorStepDefinitions(CalculatorContext calculatorContext, MailService mailService, IConfiguration configuration)
     {
         _calculatorContext = calculatorContext;
         _mailService = mailService;
-    }
-    
-    [Given(@"^the first number is (.*)$")]
-    public void GivenTheFirstNumberIs(int number)
-    {
-        _calculatorContext.FirstNumber = number;
+        _configuration = configuration;
     }
 
-    [Given(@"^the second number is (.*)$")]
-    public void GivenTheSecondNumberIs(int number)
+    [Given(@"^Go to url$")]
+    public void GoToUrl()
     {
-        _calculatorContext.SecondNumber = number;
+        DriverUtils.GoToUrl(_configuration["Base.Url"]);
     }
 
-    [When("the two numbers are added")]
-    public void WhenTheTwoNumbersAreAdded()
+    [When(@"^Enter Text Area ""(.*)""$")]
+    public void EnterTextArea(string text)
     {
-        _calculatorContext.Result = _calculatorContext.FirstNumber + _calculatorContext.SecondNumber;
+        new PageObject().EnterTextArea(text);
+
+        _calculatorContext.FirstNumber = text;
+
+        Thread.Sleep(new Random().Next(2000, 10000));
     }
 
-    [Then(@"^the result should be (.*)$")]
-    public void ThenTheResultShouldBe(int result)
+    [Then(@"^Print Text$")]
+    public void PrintText()
     {
-        Console.WriteLine(_calculatorContext.Result);
-    }
-    
-    [When("Send email")]
-    public void SendEmail()
-    {
-        _mailService.SendMail("test", "test");
-    }
 
+        Console.WriteLine(_calculatorContext.FirstNumber);
+    }
 }

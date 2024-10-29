@@ -1,11 +1,7 @@
 Feature: Calculator
 
-Simple calculator for adding two numbers
-
 @mytag
-Scenario: Add two numbers
-	Given the first number is 50
-	And the second number is 70
-	When the two numbers are added
-	And Send email
-	Then the result should be 120
+Scenario: Add two numbers scne 1
+	Given Go to url
+	When Enter Text Area "test1231"
+	Then Print Text
